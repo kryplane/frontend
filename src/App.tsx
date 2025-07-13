@@ -2,10 +2,12 @@ import "./App.css";
 import { useWeb3AuthConnect, useWeb3AuthDisconnect, useWeb3AuthUser } from "@web3auth/modal/react";
 // IMP START - Blockchain Calls  
 import { useAccount } from "wagmi";
-import { SendTransaction } from "./components/sendTransaction";
-import { Balance } from "./components/getBalance";
-import { SwitchChain } from "./components/switchNetwork";
+import { ChatInterface } from "@/components/chat-interface"
+// import { SendTransaction } from "./components/sendTransaction";
+// import { Balance } from "./components/getBalance";
+// import { SwitchChain } from "./components/switchNetwork";
 // IMP END - Blockchain Calls
+
 function App() {
   // IMP START - Login  
   const { connect, isConnected, connectorName, loading: connectLoading, error: connectError } = useWeb3AuthConnect();
@@ -25,39 +27,19 @@ function App() {
       console.log(...args);
     }
   }
+  const user = {
+        id: Math.random().toString(36).substr(2, 9),
+        username: 'exampleUser',
+        email: 'example@gmail.com',
+        isOnline: true,
+        lastSeen: new Date(),
+      }
 
-  const loggedInView = (
-    <div className="grid">
-      <h2>Connected to {connectorName}</h2>
-      {/* // IMP START - Blockchain Calls */}
-      <div>{address}</div>
-      {/* // IMP END - Blockchain Calls */}
-      <div className="flex-container">
-        <div>
-          <button onClick={() => uiConsole(userInfo)} className="card">
-            Get User Info
-          </button>
-        </div>
-        {/* // IMP START - Logout */}
-        <div>
-          <button onClick={() => disconnect()} className="card">
-            Log Out
-          </button>
-          {disconnectLoading && <div className="loading">Disconnecting...</div>}
-          {disconnectError && <div className="error">{disconnectError.message}</div>}
-        </div>
-        {/* // IMP END - Logout */}
-      </div>
-      {/* IMP START - Blockchain Calls */}
-      <SendTransaction />
-      <Balance />
-      <SwitchChain />
-      {/* IMP END - Blockchain Calls */}
-    </div>
-  );
+  if (isConnected) {
+    return <ChatInterface user={user} onLogout={() => {}} />
+  }
 
   const unloggedInView = (
-    // IMP START - Login  
     <div className="grid">
       <button onClick={() => connect()} className="card">
         Login
@@ -65,33 +47,18 @@ function App() {
       {connectLoading && <div className="loading">Connecting...</div>}
       {connectError && <div className="error">{connectError.message}</div>}
     </div>
-    // IMP END - Login
-
   );
 
   return (
     <div className="container">
       <h1 className="title">
-        <a target="_blank" href="https://web3auth.io/docs/sdk/pnp/web/modal" rel="noreferrer">
-          Web3Auth{" "}
-        </a>
-        & React Modal Quick Start
+        Quick Start
       </h1>
 
-      {isConnected ? loggedInView : unloggedInView}
+      {unloggedInView}
       <div id="console" style={{ whiteSpace: "pre-line" }}>
         <p style={{ whiteSpace: "pre-line" }}></p>
       </div>
-
-      <footer className="footer">
-        <a
-          href="https://github.com/Web3Auth/web3auth-examples/tree/main/quick-starts/react-quick-start"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Source code
-        </a>
-      </footer>
     </div>
   );
 }
