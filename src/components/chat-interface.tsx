@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Users, LogOut, Send } from "lucide-react"
+import { MessageSquare, Users, LogOut, Send, Settings } from "lucide-react"
 import type { User } from "@/types/user"
 import type { Message } from "@/types/message"
 import type { Conversation } from "@/types/conversation"
@@ -16,9 +16,10 @@ import { UserList } from "@/components/user-list"
 interface ChatInterfaceProps {
   user: User
   onLogout: () => void
+  onShowProfile?: () => void
 }
 
-export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
+export function ChatInterface({ user, onLogout, onShowProfile }: ChatInterfaceProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -177,9 +178,16 @@ export function ChatInterface({ user, onLogout }: ChatInterfaceProps) {
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onLogout}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="flex space-x-1">
+              {onShowProfile && (
+                <Button variant="ghost" size="sm" onClick={onShowProfile}>
+                  <Settings className="h-4 w-4" />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={onLogout}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Tab Navigation */}

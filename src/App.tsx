@@ -1,65 +1,53 @@
 import "./App.css";
-import { useWeb3AuthConnect, useWeb3AuthDisconnect, useWeb3AuthUser } from "@web3auth/modal/react";
-// IMP START - Blockchain Calls  
-import { useAccount } from "wagmi";
-import { ChatInterface } from "@/components/chat-interface"
-// import { SendTransaction } from "./components/sendTransaction";
-// import { Balance } from "./components/getBalance";
-// import { SwitchChain } from "./components/switchNetwork";
-// IMP END - Blockchain Calls
+import { useAuth } from "@/hooks/useAuth";
+import { ChatInterface } from "@/components/chat-interface";
+import { LoginComponent } from "@/components/login-component";
+import { UserProfile } from "@/components/user-profile";
+import { Toaster } from "@/components/ui/toaster";
+import { useState } from "react";
 
 function App() {
-  // IMP START - Login  
-  const { connect, isConnected, connectorName, loading: connectLoading, error: connectError } = useWeb3AuthConnect();
-  // IMP END - Login
-  // IMP START - Logout
-  const { disconnect, loading: disconnectLoading, error: disconnectError } = useWeb3AuthDisconnect();
-  // IMP END - Logout
-  const { userInfo } = useWeb3AuthUser();
-  // IMP START - Blockchain Calls
-  const { address } = useAccount();
-  // IMP END - Blockchain Calls
+  const { isAuthenticated, user, logout } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
 
-  function uiConsole(...args: any[]): void {
-    const el = document.querySelector("#console>p");
-    if (el) {
-      el.innerHTML = JSON.stringify(args || {}, null, 2);
-      console.log(...args);
-    }
-  }
-  const user = {
-        id: Math.random().toString(36).substr(2, 9),
-        username: 'exampleUser',
-        email: 'example@gmail.com',
-        isOnline: true,
-        lastSeen: new Date(),
-      }
-
-  if (isConnected) {
-    return <ChatInterface user={user} onLogout={() => {}} />
-  }
-
-  const unloggedInView = (
-    <div className="grid">
-      <button onClick={() => connect()} className="card">
-        Login
-      </button>
-      {connectLoading && <div className="loading">Connecting...</div>}
-      {connectError && <div className="error">{connectError.message}</div>}
-    </div>
-  );
-
-  return (
-    <div className="container">
-      <h1 className="title">
-        Quick Start
-      </h1>
-
-      {unloggedInView}
-      <div id="console" style={{ whiteSpace: "pre-line" }}>
-        <p style={{ whiteSpace: "pre-line" }}></p>
+  // Show profile if requested
+  if (showProfile && isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-md mx-auto">
+          <button 
+            onClick={() => setShowProfile(false)}
+            className="mb-4 text-blue-600 hover:underline"
+          >
+            ← Back to Chat
+          </button>
+          <UserProfile />
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  // Show chat interface if authenticated
+  if (isAuthenticated && user) {
+    return (
+      <ChatInterface 
+        user={user} 
+        onLogout={logout}
+        onShowProfile={() => setShowProfile(true)}
+      />
+    );
+  }
+
+  // Show login component if not authenticated
+  return (
+    <>
+      <LoginComponent 
+        onSuccess={(receiverHash) => {
+          console.log('Login successful, receiverHash:', receiverHash);
+        }} 
+      />
+      <Toaster />
+    </>
   );
 }
 

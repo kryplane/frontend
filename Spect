@@ -1,0 +1,114 @@
+# ShadowChat Frontend Application Technical Overview
+
+## 📱 Platform Targets
+
+* **Web Application**: Built using React
+* **Mobile Application**: Implemented in React Native
+
+---
+
+## 🔧 Key Technologies
+
+* **React / React Native**: UI rendering and platform abstraction
+* **TypeScript**: Type safety and maintainability
+* **ethers.js**: Blockchain interaction (contract read/write)
+* **WatermelonDB**: Abstraction layer over IndexedDB for efficient local data handling
+* **Web3Auth**: Wallet integration for signature and account access
+* **AES-GCM / Bcrypt**: For encrypting message payloads and secret keys
+
+---
+
+## 🧩 Functional Modules
+
+### 1. 🔐 Identity & Onboarding
+
+* Users either generate a `secretCode` or create a wallet signature with a known prefix.
+* From this, `receiverHash = keccak256(secretCode or signedPrefix)` is derived.
+* The secret is encrypted and stored securely in the client.
+
+### 2. 💬 Messaging Interface
+
+* Users subscribe to smart contract shard events that emit messages to their `receiverHash`.
+* Messages are retrieved from IPFS and decrypted using local keys.
+* Verified using the sender’s signature embedded in payload metadata.
+* Message threads are grouped per contact.
+
+### 3. 🤝 Friend Request Protocol
+
+* Friend requests are sent to the `receiverHash` endpoint.
+* The receiver reviews and approves requests to open bi-directional messaging.
+* Once approved, a unique session thread is instantiated.
+
+### 4. 💰 Credit & Quota Management
+
+* Users can fund any `receiverHash` using ETH or supported tokens.
+* UI displays credit balances and projected per-message costs.
+* Optional: Withdrawal of unused credits through wallet-signed request.
+
+### 5. 🔔 Notifications (Planned Feature)
+
+* Push notifications via service workers or WalletConnect Notify
+* Off-chain relay services can be used to deliver encrypted metadata
+
+### 6. 🔒 End-to-End Encryption (E2EE)
+
+* Messages encrypted with symmetric key derived via ECDH or pre-shared secret
+* Encrypted content includes metadata like timestamp, sender pubkey, etc.
+* Only sender and approved receiver can decrypt payload
+
+---
+
+## 🗂️ Local Database Schema
+
+* `receiverHashes[]`: Inbox identifiers mapped to local keys
+* `contacts[]`: Approved counterparties with optional metadata
+* `threads[]`: Persistent chat session state
+* `messages[]`: Indexed encrypted messages, ordered by timestamp
+* `settings`: Local user preferences and the encrypted secret
+
+---
+
+## 🔁 Frontend Lifecycle
+
+1. User connects wallet and generates `receiverHash`
+2. Application listens for friend requests tied to this hash
+3. Once approved, chat thread is opened
+4. Messages are observed from event logs, (pulled from IPFS), and decrypted
+5. Users with sufficient credit can reply or initiate new messages
+
+---
+
+## 🧠 UX & Privacy Principles
+
+* Message initiation only allowed after mutual approval
+* Threads and messages are invisible to non-participants
+* UI takes inspiration from Signal and other secure messengers
+* Contacts are pseudonymous unless linked to ENS
+
+---
+
+## ⚙️ Development & Build Instructions
+
+* `yarn dev`: Launch web development server
+* `yarn build`: Production build for web
+* `yarn mobile`: Start React Native mobile app
+* `.env`: Define shard contract addresses, RPC URLs, IPFS tokens, and chain config
+
+---
+
+## 📁 Codebase Structure
+
+```
+/src
+├── components        // UI building blocks
+├── hooks             // Custom React hooks
+├── contracts         // Contract ABIs and utils
+├── db                // Local database abstraction
+├── pages             // Screen-level components (web + mobile)
+├── services          // Backend interaction logic (e.g., IPFS)
+├── utils             // Common utilities
+├── encryption        // Crypto and E2EE handlers
+└── config            // Constants, env parsing, chain metadata
+```
+
+---
