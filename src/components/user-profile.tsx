@@ -22,11 +22,11 @@ export function UserProfile() {
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card  className="w-full max-w-md border-0">
       <CardHeader className="text-center pb-2">
         <CardTitle className="flex items-center justify-between">
           <span>Profile</span>
-          <Button variant="ghost" size="sm" onClick={logout}>
+          <Button variant="default" size="sm" onClick={logout}>
             <LogOut className="h-4 w-4" />
           </Button>
         </CardTitle>

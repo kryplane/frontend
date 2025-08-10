@@ -40,8 +40,12 @@ export function LoginComponent({ onSuccess }: LoginComponentProps) {
       await login({ type: 'wallet' });
       toast({
         title: "Login Successful!",
-        description: "Welcome to ShadowChat. Your receiver hash has been generated.",
+        description: "Welcome to ShadowChat. Redirecting to chat interface...",
       });
+      
+      // The useAuth hook will automatically update the authentication state
+      // App.tsx will detect this and navigate to ChatInterface automatically
+      // We'll call onSuccess with the wallet address as a fallback
       onSuccess?.(walletAddress || '');
     } catch (err) {
       console.error('Wallet login failed:', err);
